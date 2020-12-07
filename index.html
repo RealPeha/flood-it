@@ -2,11 +2,6 @@
     <head>
         <title>Flood-it</title>
         <meta charset="utf-8">
-        <script>
-            window.onload = function() {
-                document.getElementsByClassName("cbalink")[0].style.display = "none";
-            }
-        </script>
         <style>
             body {
                 display: flex;
@@ -40,9 +35,133 @@
             #count {
                 font-size: 35px;
             }
+
+            .caution-old-project {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 35px;
+                line-height: 35px;
+                padding: 0 15px;
+                font-size: 18px;
+                font-family: monospace;
+                background-color: tomato;
+                color: #fff;
+                transition: top .15s;
+                display: none;
+            }
+
+            .caution-old-project .close {
+                position: absolute;
+                right: 10px;
+                width: 15px;
+                height: 15px;
+                cursor: pointer;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+
+            .caution-old-project .close::after, .caution-old-project .close::before {
+                content: '';
+                display: block;
+                width: 100%;
+                height: 2px;
+                background-color: #fff;
+                position: absolute;
+                top: 50%;
+            }
+
+            .caution-old-project .close::after {
+                transform: rotate(45deg);
+            }
+
+            .caution-old-project .close::before {
+                transform: rotate(-45deg);
+            }
+
+            .github {
+                position: fixed;
+                display: block;
+                bottom: 0;
+                left: -140px;
+                right: 0;
+                height: 40px;
+                background-color: #24292e;
+                width: 130px;
+                display: flex;
+                justify-content: flex-end;
+                padding-right: 10px;
+                border-radius: 0 10px 0 0;
+                text-decoration: none;
+                transition: left .3s, width .2s;
+            }
+
+            .github:hover {
+                width: 140px;
+            }
+
+            .github:hover .arrow {
+                opacity: 1;
+                left: 15px;
+            }
+
+
+            .github span {
+                color: #fff;
+                margin: auto 10px;
+            }
+
+            .github svg {
+                margin: auto 0;
+            }
+
+            .github svg path {
+                fill: #fff;
+            }
+
+            .github .arrow {
+                position: absolute;
+                left: 0;
+                width: 15px;
+                height: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                opacity: 0;
+                transition: opacity .3s, left .2s;
+            }
+
+            .github .arrow::after, .github .arrow::before {
+                content: '';
+                display: block;
+                width: 50%;
+                height: 2px;
+                background-color: #fff;
+                position: absolute;
+            }
+
+            .github .arrow::after {
+                transform: rotate(45deg);
+                top: 4px;
+            }
+
+            .github .arrow::before {
+                transform: rotate(-45deg);
+                bottom: 4px;
+            }
+
         </style>
     </head>
     <body>
+        <div id='caution' class='caution-old-project'>
+            <b>Caution!</b> This is an old project, I am writing a little better code now
+            <div id='close' class='close'></div>
+        </div>
+        <a id='github' class='github' href='https://github.com/RealPeha/flood-it' target='_black'>
+            <div class='arrow'></div>
+            <span>RealPeha</span>
+            <svg height="32" viewBox="0 0 16 16" version="1.1" width="32" aria-hidden="true"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+        </a>
         <div class="gamePole">
             <div class="menu"><div id="butColor"></div>
                 <div class="settings">
@@ -185,6 +304,26 @@
             createGame();
             redrawPole(pole);
             drawText("FLOOD-IT", "by RealPeha");
+
+            const caution = document.getElementById('caution')
+            const hideCaution = localStorage.getItem('hideCaution')
+
+            if (!hideCaution) {
+                caution.style.display = 'block'
+                
+                document.getElementById('close').addEventListener('click', () => {
+                    caution.style.top = '-35px'
+                    localStorage.setItem('hideCaution', true)
+
+                    setTimeout(() => caution.remove(), 150)
+                })
+            } else {
+                caution.remove()
+            }
+
+            setTimeout(() => {
+                document.getElementById('github').style.left = '0'
+            }, 1000)
         </script>
     </body>
 </html>
