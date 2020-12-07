@@ -1,0 +1,190 @@
+<html>
+    <head>
+        <title>Flood-it</title>
+        <meta charset="utf-8">
+        <script>
+            window.onload = function() {
+                document.getElementsByClassName("cbalink")[0].style.display = "none";
+            }
+        </script>
+        <style>
+            body {
+                display: flex;
+            }
+            .gamePole {
+                margin: auto;
+                width: 700px;
+            }
+            .menu {
+                width: 150px;
+                display: inline-block;
+                margin-right: 20px;
+                text-align: center;
+                position: relative;
+                top: -100;
+            }
+            #game {
+                border: 1px solid black;
+            }
+            button {
+                width: 50px;
+                height: 50px;
+                border: 0;
+            }
+            button:hover {
+                cursor: pointer;
+            }
+            input {
+                margin: 2px;
+            }
+            #count {
+                font-size: 35px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="gamePole">
+            <div class="menu"><div id="butColor"></div>
+                <div class="settings">
+                    Размер поля:<br>
+                    <select id="size">
+                        <option value="8">8x8</option>
+                        <option value="10" selected>10x10</option>
+                        <option value="12">12x12</option>
+                        <option value="14">14x14</option>
+                        <option value="16">16x16</option>
+                    </select><br>
+                    Количество цветов:<br>
+                    <select id="col">
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6" selected>6</option>
+                    </select><br>
+                    <input type="button" onclick="setSettings()" value="Принять">
+                </div>
+                Осталось ходов:
+                <div id="count">25</div>
+            </div>
+            <canvas id="game"></canvas>
+        </div>
+        <script>
+            var titles = document.getElementById("game"),
+                ctx  = titles.getContext("2d"),
+                hwPole = 500,
+                hwTitle = hwPole/50,
+                colors = ["#FF3333", "#FFFF66", "#009933", "#3366FF", "#C77AEE", "#FF9900"],
+                numCl = 6,
+                pole = [],
+                count = 25,
+                game = false,
+                fillPole = [];
+            function setSettings() {
+                numCl = document.getElementById("col").value;
+                hwTitle = document.getElementById("size").value;
+                hwPole = hwTitle*50;
+                count = 25;
+                document.getElementById("count").innerHTML = count;
+                game = true;
+                document.getElementsByClassName("gamePole")[0].style.width = hwPole + 200;
+                document.getElementsByClassName("menu")[0].style.top = -((hwPole/2)-150);
+                createGame();
+                redrawPole(pole);
+            }
+			//setSettings();
+            function createGame() {
+                titles.width = hwPole;
+                titles.height = hwPole;
+                document.getElementById("butColor").innerHTML = "";
+                for (var i = 0; i < numCl; i++) {
+                    document.getElementById("butColor").innerHTML += "<button style='background-color:"+colors[i]+"' onclick='fillColor("+i+");'></button>";
+                }
+                for (var i = 0; i < hwTitle; i++) {
+                    pole[i] = [];
+                    for (var j = 0; j < hwTitle; j++) {
+                        pole[i][j] = Math.floor(Math.random() * numCl);
+                    }
+                }
+                for (var i = 0; i < hwTitle+2; i++) {
+                    fillPole[i] = [];
+                    for (var j = 0; j < hwTitle+2; j++) {
+                        fillPole[i][j] = 0;
+                    }
+                }
+                fillPole[1][1] = 1;
+            }
+            function drawText(text, text1) {
+                ctx.strokeStyle = "red";
+                ctx.fillStyle = "#FFFF66";
+                ctx.fillRect(100, 200, 300, 100);
+                ctx.font = 'bold 50px sans-serif';
+                ctx.strokeText(text, 135, 250);
+                ctx.fillStyle = "brown";
+                ctx.font = 'bold 15px sans-serif';
+                ctx.fillText(text1, 205, 270);
+            }
+            function redrawPole(arr) {
+                ctx.clearRect(0, 0, hwPole, hwPole);
+                for (var i = 0; i < hwTitle; i++) {
+                    for (var j = 0; j < hwTitle; j++) {
+                        ctx.fillStyle = colors[pole[j][i]];
+                        ctx.fillRect(i * 50, j * 50, 50, 50);
+                    }
+                }
+            }
+            function fillColor(cl) {
+                if (game == true) {
+                    var oldCl = pole[0][0],
+                        newCl = cl;
+                    pole[0][0] = newCl;
+                    for (var i = 0; i < hwTitle; i++) {
+                        for (var j = 0; j < hwTitle; j++) {
+                            if (pole[i][j] == oldCl) {
+                                if (fillPole[i+2][j+1] || fillPole[i][j+1] || fillPole[i+1][j+2] || fillPole[i+1][j]) {
+                                    fillPole[i+1][j+1] = 1;
+                                    pole[i][j] = newCl;
+                                }
+                            }
+                        }
+                        for (var j = 0; j < hwTitle; j++) {
+                            if (pole[j][i] == oldCl) {
+                                if (fillPole[j+2][i+1] || fillPole[j][i+1] || fillPole[j+1][i+2] || fillPole[j+1][i]) {
+                                    fillPole[j+1][i+1] = 1;
+                                    pole[j][i] = newCl;
+                                }
+                            }
+                        }
+                    }
+                    gameEnd();
+                    redrawPole(pole);
+                }
+            }
+            function gameEnd() {
+                var col = hwTitle*hwTitle,
+                    win = 0;
+                if (count > 0) {
+                    count--;
+                    document.getElementById("count").innerHTML = count;
+                    for (var i = 1; i < hwTitle+1; i++) {
+                        for (var j = 1; j < hwTitle+1; j++) {
+                            if (fillPole[i][j]) {
+                                win++;
+                            }
+                        }
+                    }
+                    if (win == col) {
+                        game = false;
+                        drawText("ПОБЕДА", "Спасибо за игру!");
+                    }
+                } else {
+					game = false;
+					drawText("ПРОИГРЫШ", "Вы проиграли!");
+				}
+            }
+            createGame();
+            redrawPole(pole);
+            drawText("FLOOD-IT", "by RealPeha");
+        </script>
+    </body>
+</html>
